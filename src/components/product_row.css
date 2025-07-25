@@ -23,6 +23,22 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.stock-level::after {
+  content: "Click to change";
+  display: none;
+  color: white;
+  font-weight: bold;
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.stock-level:hover::after {
+  display: block;
 }
 
 .modal-body {
