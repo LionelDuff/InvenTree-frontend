@@ -98,3 +98,10 @@
   word-break: break-word;
   white-space: nowrap;
 }
+
+.stock-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}

@@ -1,11 +1,11 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import { TreePine } from "lucide-react";
+import { TreePine, SquareChevronUp, SquareChevronDown } from "lucide-react";
 import ProductRow from "./components/product_row";
 
 function App() {
   const [products, setProducts] = useState([]);
-  console.log("API URL:", process.env.REACT_APP_API_URL);
+  const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
     async function fetchProducts() {
@@ -26,19 +26,34 @@ function App() {
     fetchProducts();
   }, []);
 
-  const listProducts = products.map((product) => {
-    return product.variants.map((variant) => (
-      <ProductRow
-        key={variant.id}
-        title={
-          product.title +
-          (variant.title === "Default Title" ? "" : " - " + variant.title)
-        }
-        product={product}
-        variant={variant}
-      />
-    ));
-  });
+  // Rassembler toutes les variantes dans un seul tableau
+  const variantsWithProduct = products.flatMap((product) =>
+    product.variants.map((variant) => ({
+      ...variant,
+      productTitle: product.title,
+      fullTitle:
+        product.title +
+        (variant.title === "Default Title" ? "" : " - " + variant.title),
+      product,
+    }))
+  );
+
+  // Trier par stock
+  const sortedVariants = [...variantsWithProduct].sort((a, b) =>
+    sortOrder === "asc"
+      ? a.inventory_quantity - b.inventory_quantity
+      : b.inventory_quantity - a.inventory_quantity
+  );
+
+  // Générer les lignes
+  const listProducts = sortedVariants.map((variant) => (
+    <ProductRow
+      key={variant.id}
+      title={variant.fullTitle}
+      product={variant.product}
+      variant={variant}
+    />
+  ));
 
   return (
     <div className="App">
@@ -55,9 +70,23 @@ function App() {
           <table className="product-table">
             <thead>
               <tr>
-                <th className="sku-column">Sku</th>
+                <th>Sku</th>
                 <th>Title</th>
-                <th className="stock-column">Stock</th>
+                <th
+                  onClick={() =>
+                    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+                  }
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <div className="stock-column">
+                    Stock{" "}
+                    {sortOrder === "asc" ? (
+                      <SquareChevronUp color="lightblue" />
+                    ) : (
+                      <SquareChevronDown color="lightblue" />
+                    )}
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>{listProducts}</tbody>
