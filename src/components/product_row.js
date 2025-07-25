@@ -9,7 +9,7 @@ const ProductRow = ({ title, product, variant }) => {
   /* Function to verify if stock tracking is enabled */
   const isStockTrackingEnabled = async () => {
     const response = await fetch(
-      `${process.env.API_URL}stock/${variant.inventory_item_id}`
+      `${process.env.REACT_APP_API_URL}stock/${variant.inventory_item_id}`
     );
     const data = await response.json();
 
@@ -22,13 +22,16 @@ const ProductRow = ({ title, product, variant }) => {
 
   const changeQuantityApi = () => {
     try {
-      fetch(`${process.env.API_URL}stock/${variant.inventory_item_id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ quantity }),
-      }).then((response) => {
+      fetch(
+        `${process.env.REACT_APP_API_URL}stock/${variant.inventory_item_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ quantity }),
+        }
+      ).then((response) => {
         if (response.status === 200) {
           setModalOpen(false);
           alert("Stock level updated successfully!");

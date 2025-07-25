@@ -5,11 +5,14 @@ import ProductRow from "./components/product_row";
 
 function App() {
   const [products, setProducts] = useState([]);
+  console.log("API URL:", process.env.REACT_APP_API_URL);
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch(`${process.env.API_URL}products`);
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}products`
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
