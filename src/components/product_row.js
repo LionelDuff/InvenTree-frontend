@@ -9,7 +9,7 @@ const ProductRow = ({ title, product, variant }) => {
   /* Function to verify if stock tracking is enabled */
   const isStockTrackingEnabled = async () => {
     const response = await fetch(
-      `${process.env.API_URL}/stock/${variant.inventory_item_id}`
+      `${process.env.API_URL}stock/${variant.inventory_item_id}`
     );
     const data = await response.json();
 
@@ -22,7 +22,7 @@ const ProductRow = ({ title, product, variant }) => {
 
   const changeQuantityApi = () => {
     try {
-      fetch(`${process.env.API_URL}/stock/${variant.inventory_item_id}`, {
+      fetch(`${process.env.API_URL}stock/${variant.inventory_item_id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
