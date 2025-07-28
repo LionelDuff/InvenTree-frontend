@@ -1,70 +1,154 @@
-# Getting Started with Create React App
+# 📦 Test Technique – Groupe MIH
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 🎯 Objectif du projet
 
-## Available Scripts
+Ce projet a été réalisé dans le cadre du test d’évaluation technique proposé par le Groupe MIH.  
+Il s'agit d'une interface simple permettant d’afficher les produits d’une boutique Shopify, avec la possibilité de consulter et de modifier le stock.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## ⚙️ Instructions d'installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 🗄️ Backend
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Cloner le dépôt :
+   ```bash
+   git clone https://github.com/LionelDuff/InvenTree-backend.git
+   cd mon-projet/backend
+   ```
 
-### `npm test`
+2. Installer les dépendances :
+   ```bash
+   npm install
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. Créer un fichier `.env` à la racine du dossier backend avec le contenu suivant :
+   ```
+   SHOP=nom-de-la-boutique.myshopify.com
+   ADMIN_API_ACCESS_TOKEN=clé-d’accès-admin
+   API_KEY=clé-publique-shopify  
+   API_SECRET=clé-secrète-shopify 
+   SCOPES=["read_products", "read_inventory", "write_inventory"]
+   ```
 
-### `npm run build`
+4. Lancer le serveur :
+   ```bash
+   npm start
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 🖥️ Frontend
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Cloner le dépôt :
+   ```bash
+   git clone https://github.com/LionelDuff/InvenTree-frontend.git
+   cd mon-projet/frontend
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Installer les dépendances :
+   ```bash
+   npm install
+   ```
 
-### `npm run eject`
+3. Créer un fichier `.env` à la racine du dossier frontend :
+   ```
+   REACT_APP_API_URL=url-du-backend
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+4. Lancer le frontend :
+   ```bash
+   npm start
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🔑 Configuration des clés Shopify
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Pour faire fonctionner l’API Shopify :
 
-## Learn More
+1. Connectez-vous à votre boutique Shopify.
+2. Créez une application personnalisée via : Paramètres > Applications > Développer des
+applications.
+3. Activez les permissions suivantes pour l’API Admin REST :
+- read_products
+- read_inventory
+- write_inventory
+4. Générez votre Access Token.
+5. Renseigner les variables `SHOP`, `API_KEY`, `API_SECRET` et `ADMIN_API_ACCESS_TOKEN` dans le fichier `.env` du backend.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🔐 Nom de l'application, scopes choisis et leur utilisation
 
-### Code Splitting
+- **Nom de l’application Shopify** : `InvenTree`  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **Scopes sélectionnés** : `"read_products", "read_inventory", "write_inventory"`
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 📋 Détail des scopes et de leur usage dans le projet
 
-### Making a Progressive Web App
+| Scope            | Description                                                               | Utilisation concrète dans le projet                                                             |
+|------------------|---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `read_products`  | Permet de lire les produits, leurs titres, identifiants, et variantes.    | Utilisé pour afficher la liste des produits et variantes dans le tableau React.                 |
+| `read_inventory` | Autorise l'accès aux niveaux de stock des produits.                       | Utilisé pour récupérer et afficher la quantité de stock disponible par variante.                |
+| `write_inventory`| Autorise la modification des niveaux de stock.                            | Utilisé pour mettre à jour manuellement le stock via un champ de saisie dans l’interface React. |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Ces autorisations sont **essentielles** pour permettre à l’application d’interagir dynamiquement avec les produits Shopify :
+- Lecture des **informations produits** pour afficher les données dans l’interface.
+- Consultation et **mise à jour du stock** en temps réel, sans passer par l'interface Shopify.
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## ▶️ Comment exécuter le projet
 
-### Deployment
+1. Lancer le backend :
+   ```bash
+   cd backend && npm start
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+2. Dans un second terminal, lancer le frontend :
+   ```bash
+   cd frontend && npm start
+   ```
 
-### `npm run build` fails to minify
+## 🧱 Structure du code
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+mon-projet/
+│
+├── backend/
+│   ├── routes/
+│   │   └── index.js          # Route pour mise à jour du stock
+│   ├── app.js                # Point d'entrée du backend
+│   └── .env                  # Configuration des variables d’environnement
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── product_row.js # Composant d’affichage d’une ligne de produit
+│   │   ├── App.js             # Composant principal
+│   │   └── index.js           # Point d’entrée React
+│   └── .env                   # Variable pour l’URL de l’API
+```
+
+---
+
+## 🚀 Suggestions d'améliorations
+
+- Authentification sécurisée pour restreindre l’accès à l’interface de gestion
+- Affichage plus complet des informations produit (images, statut, etc.)
+- Ajout de notifications en cas d’erreur ou de succès (via toast)
+
+---
+
+## ⏱️ Temps passé
+
+Environ **10 heures** réparties entre :
+
+- Mise en place du backend + intégration API Shopify
+- Construction de l’interface utilisateur avec React
+- Ajustements UI / UX
+
+---
+
+N'hésitez pas à me contacter pour toute question ou clarification ! 😊
