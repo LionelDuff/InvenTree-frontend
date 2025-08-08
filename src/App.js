@@ -5,6 +5,7 @@ import {
   SquareChevronUp,
   SquareChevronDown,
   RotateCcw,
+  TriangleAlert,
 } from "lucide-react";
 import ProductRow from "./components/product_row";
 
@@ -12,14 +13,29 @@ function App() {
   const [products, setProducts] = useState([]);
   // State pour les filtres
   const [searchTerm, setSearchTerm] = useState("");
-  const [skuFilter, setSkuFilter] = useState("");
+  const [barcodeFilter, setBarcodeFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [minStock, setMinStock] = useState("");
   // State pour le tri
   const [sortOrder, setSortOrder] = useState("asc");
 
+  // State pour la détection mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
   // Pour déclencher l'animation une fois
   const [isRotating, setIsRotating] = useState(false);
 
+  // Détection des changements de taille de fenêtre
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Récupération des produits depuis l'API
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -43,71 +59,76 @@ function App() {
     // Lance l’animation
     setIsRotating(true);
     setSearchTerm("");
-    setSkuFilter("");
+    setBarcodeFilter("");
     setMinStock("");
+    setCategoryFilter("");
 
     // Stoppe l’animation après 0.5s
     setTimeout(() => setIsRotating(false), 500);
   };
 
-  // Rassembler toutes les variantes dans un seul tableau
-  const variantsWithProduct = products.length
-    ? products.flatMap((product) =>
-        product.variants.map((variant) => ({
-          ...variant,
-          productTitle: product.title,
-          fullTitle:
-            product.title +
-            (variant.title === "Default Title" ? "" : " - " + variant.title),
-          product,
-        }))
-      )
-    : [];
-
   // Appliquer les filtres
-  const filteredVariants = variantsWithProduct.filter((variant) => {
+  const filteredProducts = products.filter((product) => {
     // Par défaut, tout passe
     let isMatch = true;
 
     if (searchTerm !== "") {
       isMatch =
         isMatch &&
-        variant.fullTitle.toLowerCase().includes(searchTerm.toLowerCase());
+        product.title.toLowerCase().includes(searchTerm.toLowerCase());
     }
 
-    if (skuFilter !== "") {
-      const lower = skuFilter.toLowerCase();
+    if (barcodeFilter !== "") {
+      const lower = barcodeFilter.toLowerCase();
 
+      isMatch = isMatch && product.meta.barcode.toLowerCase().includes(lower);
+    }
+
+    if (categoryFilter !== "") {
       isMatch =
         isMatch &&
-        ((variant.sku && variant.sku.toLowerCase().includes(lower)) ||
-          String(variant.product_id).includes(lower) ||
-          String(variant.id).includes(lower));
+        product.category.toLowerCase().includes(categoryFilter.toLowerCase());
     }
 
     if (minStock !== "") {
-      isMatch = isMatch && variant.inventory_quantity <= parseInt(minStock);
+      isMatch = isMatch && product.stock <= parseInt(minStock);
     }
 
     return isMatch;
   });
 
   // Trier par stock
-  const sortedVariants = [...filteredVariants].sort((a, b) =>
-    sortOrder === "asc"
-      ? a.inventory_quantity - b.inventory_quantity
-      : b.inventory_quantity - a.inventory_quantity
+  const sortedProducts = [...filteredProducts].sort((a, b) =>
+    sortOrder === "asc" ? a.stock - b.stock : b.stock - a.stock
   );
 
+  // Mettre à jour l'état des produits
+  const updateProductStock = (id, newStock) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, stock: newStock } : product
+      )
+    );
+  };
+
   // Générer les lignes
-  const listProducts = sortedVariants.map((variant) => (
+  const listProducts = sortedProducts.map((product) => (
     <ProductRow
-      key={variant.id}
-      title={variant.fullTitle}
-      product={variant.product}
-      variant={variant}
+      key={product.id}
+      product={product}
+      updateProductStock={updateProductStock}
     />
   ));
+
+  // If screen mobile
+  if (isMobile) {
+    return (
+      <div className="mobile-view">
+        <TriangleAlert color="orange" size={48} />
+        <h2>This app can only be used on a computer.</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="App">
@@ -120,36 +141,50 @@ function App() {
         </div>
       </header>
       <main className="main-content">
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-            marginBottom: "15px",
-            flexWrap: "wrap",
-          }}
-          className="filter-container"
-        >
+        <div className="filter-container">
           <input
             type="text"
-            placeholder="Filter by SKU / Product ID"
-            value={skuFilter}
-            onChange={(e) => setSkuFilter(e.target.value)}
+            placeholder="Filter by Barcode"
+            value={barcodeFilter}
+            onChange={(e) => setBarcodeFilter(e.target.value)}
+            className="input"
           />
           <input
             type="text"
             placeholder="Filter by title"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="input"
           />
-
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="category-filter"
+          >
+            <option value="">All Categories</option>
+            <option value="beauty">beauty</option>
+            <option value="fragrances">fragrances</option>
+            <option value="furniture">furniture</option>
+            <option value="groceries">groceries</option>
+            <option value="home-decoration">home-decoration</option>
+            <option value="kitchen-accessories">kitchen-accessories</option>
+            <option value="laptops">laptops</option>
+            <option value="men-shirts">men-shirts</option>
+            <option value="mens-shoes">mens-shoes</option>
+            <option value="mens-watches">mens-watches</option>
+            <option value="mobile-accessories">mobile-accessories</option>
+            <option value="motorcycle">motorcycle</option>
+            <option value="skin-care">skin-care</option>
+            <option value="smartphones">smartphones</option>
+            <option value="sports-accessories">sports-accessories</option>
+          </select>
           <input
             type="number"
             placeholder="Show stock ≤ ..."
             value={minStock}
             onChange={(e) => setMinStock(e.target.value)}
             min="0"
+            className="input"
           />
           <RotateCcw
             onClick={resetFilters}
@@ -163,8 +198,9 @@ function App() {
           <table className="product-table">
             <thead>
               <tr>
-                <th>Sku</th>
+                <th>Barcode</th>
                 <th>Title</th>
+                <th>Category</th>
                 <th
                   onClick={() =>
                     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))

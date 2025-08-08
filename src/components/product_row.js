@@ -2,50 +2,39 @@ import { useState } from "react";
 import { CircleAlert, CirclePlus, CircleMinus } from "lucide-react";
 import "./product_row.css";
 
-const ProductRow = ({ title, product, variant }) => {
-  const [quantity, setQuantity] = useState(variant.inventory_quantity);
+const ProductRow = ({ product, updateProductStock }) => {
+  const [quantity, setQuantity] = useState(product.stock);
   const [modalOpen, setModalOpen] = useState(false);
 
-  /* Function to verify if stock tracking is enabled */
-  const isStockTrackingEnabled = async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}stock/${variant.inventory_item_id}`
-    );
-    const data = await response.json();
-
-    if (data.body.inventory_levels[0].available !== null) {
-      setModalOpen(true);
-    } else {
-      alert("Stock tracking is not enabled for this product.");
-    }
-  };
-
-  const changeQuantityApi = () => {
+  // Mettre à jour la quantité dans le stock
+  const updateStock = async () => {
     try {
-      fetch(
-        `${process.env.REACT_APP_API_URL}stock/${variant.inventory_item_id}`,
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}products/${product.id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ quantity }),
+          body: JSON.stringify({ stock: quantity }),
         }
-      ).then((response) => {
-        if (response.status === 200) {
-          setModalOpen(false);
-          alert("Stock level updated successfully!");
-        }
-      });
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update stock");
+      }
+      updateProductStock(product.id, quantity);
+      setModalOpen(false);
     } catch (error) {
-      console.error("Error updating stock level:", error);
+      console.error("Error updating stock:", error);
     }
   };
 
   return (
     <tr>
-      <td>{product.id}</td>
-      <td>{title}</td>
+      <td>{product.meta.barcode}</td>
+      <td>{product.title}</td>
+      <td>{product.category}</td>
       <td>
         {modalOpen && (
           <div className="modal">
@@ -78,19 +67,14 @@ const ProductRow = ({ title, product, variant }) => {
                 >
                   Close
                 </button>
-                <button
-                  className="modal-update"
-                  onClick={() => {
-                    changeQuantityApi();
-                  }}
-                >
+                <button className="modal-update" onClick={updateStock}>
                   Update
                 </button>
               </div>
             </div>
           </div>
         )}
-        <div className="stock-level" onClick={() => isStockTrackingEnabled()}>
+        <div className="stock-level" onClick={() => setModalOpen(true)}>
           {quantity}
           {quantity < 10 && (
             <CircleAlert style={{ marginLeft: "6px" }} color="red" />
